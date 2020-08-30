@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+
+{% block main_block %}
+    <div id="submit_url">
+        <style>
+            #input_url {
+                font-size: 16px;
+                width: 650px;
+                height: 25px;
+                border: 1px solid #008EAF ;
+            }
+            #generate_shorten {
+                height: 25px;
+                size: 25px;
+            }
+        </style>
+
+
+
+        <form id="get_shorten_form" method="post" action="{% url 'api:generate_shorten' %}">
+            <input id="input_url" name="url" value="">
+            <input id="generate_shorten" type="submit", value="convert">
+        </form>
+
+        <script>
+            $(function(){
+                $("#get_shorten_form").submit(
+                    function(){
+                        $.post("{% url 'api:generate_shorten' %}",
+                            {"url": $("#input_url").val()},
+                            function(data, status){
+                                $("#result").html(data);
+                                if(status === "success") {
+                                    $("#input_url").val("");
+                                }
+                            }
+                        );
+                        return false;
+                    }
+                )
+            })
+        </script>
+    </div>
+{% endblock %}
