@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse,HttpResponseRedirect
+from django.shortcuts import render, HttpResponse,HttpResponseRedirect,HttpResponsePermanentRedirect
 from django.views.decorators.csrf import csrf_exempt
 
 import random, string
@@ -13,8 +13,7 @@ def generate_shorten(request):
     
     return_msg = ''
 
-
-    BASE_HOST = 'http://' + request.get_host() + '/'
+    base_url = 'http://' + request.get_host() + '/'
 
     url: str = request.POST['url']
     url = ''.join(url.split())
@@ -30,7 +29,7 @@ def generate_shorten(request):
         try:
             # already exist
             o = URLToUniqueCode.objects.get(url=url)
-            return_msg = "Already converted to " + BASE_HOST + o.unique_code
+            return_msg = "Already converted to " + base_url + o.unique_code
             response = HttpResponse(return_msg)
         except URLToUniqueCode.DoesNotExist:
             # Generate a random unique code
@@ -48,23 +47,23 @@ def generate_shorten(request):
                     o.save()
                     break
 
-            return_msg = BASE_HOST + unique_code
+            return_msg = base_url + unique_code
 
             #return render(request, 'result.html', results)
             response = HttpResponse(return_msg)
-            response.__setitem__('Location', url)
-            response.status_code = 301
+            #response.__setitem__('Location', url)
+            #response.status_code = 301
     
     return response
     
 
 def redirect(request, unique_code):
-    BASE_HOST = 'http://' + request.get_host() + '/'
+    base_url = 'http://' + request.get_host() + '/'
     try:
         o = URLToUniqueCode.objects.get(unique_code=unique_code)
-        return HttpResponseRedirect(o.url)
+        return HttpResponsePermanentRedirect(o.url)
     except URLToUniqueCode.DoesNotExist:
-        return HttpResponse(BASE_HOST + unique_code + ' does not exist!!!')
+        return HttpResponse(base_url + unique_code + ' does not exist!!!')
 
 @csrf_exempt
 def main_page(request):
